@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FundedHive Search Automation Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(22, 28, 45, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            line-height: 1.6;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a5b4fc, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* X Post Section */
+        .x-post-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .x-post-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .x-post-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .x-post-info h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #38bdf8; /* X blue/light blue */
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .x-post-url {
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            word-break: break-all;
+        }
+
+        .x-post-url a {
+            color: #38bdf8;
+            text-decoration: none;
+        }
+
+        .x-post-url a:hover {
+            text-decoration: underline;
+        }
+
+        .tweet-content-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid #38bdf8;
+            padding: 1.2rem;
+            border-radius: 4px 8px 8px 4px;
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            color: #e5e7eb;
+        }
+
+        .x-screenshot-container {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .x-screenshot-container img {
+            width: 100%;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .x-screenshot-container:hover img {
+            transform: scale(1.02);
+        }
+
+        /* Search Results Section */
+        .results-section h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+            padding-left: 0.75rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .engine-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .engine-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .engine-name {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .badge-danger {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .card-url {
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .card-url a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .card-url a:hover {
+            text-decoration: underline;
+        }
+
+        .card-screenshot {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            position: relative;
+            cursor: pointer;
+            margin-top: auto;
+        }
+
+        .card-screenshot img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .card-screenshot:hover img {
+            transform: scale(1.05);
+        }
+
+        .screenshot-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card-screenshot:hover .screenshot-overlay {
+            opacity: 1;
+        }
+
+        .card-screenshot-failed {
+            height: 180px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: auto;
+        }
+
+        .card-footer {
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Fullscreen Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(5, 7, 12, 0.95);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FundedHive Search Automation Report</h1>
+            <p>Verification & Multi-Engine Search Results for FundedHive Reviews</p>
+        </header>
+
+        <!-- X Post Section -->
+        <section class="x-post-section">
+            <div class="x-post-grid">
+                <div class="x-post-info">
+                    <h2>🐦 Verification target: X Post</h2>
+                    <div class="x-post-url">
+                        <strong>Source URL:</strong> <a href="https://x.com/HyKoushik63455/status/2060435122684629268?s=20" target="_blank">https://x.com/HyKoushik63455/status/2060435122684629268?s=20</a>
+                    </div>
+                    <div class="tweet-content-box">
+                        Here's a shortened & optimized version (exactly under limit):<br><br>My Honest Review of @FundedHive 🐝Tried many prop firms but FundedHive is straight fire.<br>Their 1-min payout challenge is insane if it doesn’t hit in 1 min, you get $1000+full payout. I tested it money came in 47's.
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">
+                        This X post from @HyKoushik63455 was automatically visited and parsed by the automation engine to correlate search engine indexation.
+                    </p>
+                </div>
+                <div>
+                    <strong>Captured Post Snapshot:</strong>
+                    <div class='x-screenshot-container' onclick='openModal("screenshots/x_post_1792302405.png")'><img src='screenshots/x_post_1792302405.png' alt='X Post Screenshot'></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search Engines Grid -->
+        <section class="results-section">
+            <h2>Search Engine Indexation Grid</h2>
+            <div class="results-grid">
+                
+        <div class="engine-card">
+            <div class="card-header">
+                <div class="engine-name">Bing</div>
+                <span class="status-badge badge-success">Success</span>
+            </div>
+            <div class="card-body">
+                <p class="card-title"><strong>Title:</strong> FundedHive 1 minute payout OR 47 seconds OR $1000 compensation review - Search</p>
+                <p class="card-url"><strong>URL:</strong> <a href="https://www.bing.com/search?q=FundedHive+1+minute+payout+OR+47+seconds+OR+$1000+compensation+review&rdr=1&rdrig=43637D2EF0914664970ED9C8959B6F65" target="_blank">https://www.bing.com/search?q=FundedHive+1+minute+payout+OR+47+seconds+OR+$1000+compensation+review&rdr=1&rdrig=43637D2EF0914664970ED9C8959B6F65</a></p>
+                
+            <div class="card-screenshot" onclick="openModal('screenshots/bing_1792302413.png')">
+                <img src="screenshots/bing_1792302413.png" alt="Bing Screenshot">
+                <div class="screenshot-overlay">
+                    <span>🔍 View Fullscreen</span>
+                </div>
+            </div>
+            
+                <div class="card-footer">
+                    <span class="timestamp">🕒 2026-10-18 05:46:53</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="engine-card">
+            <div class="card-header">
+                <div class="engine-name">Brave</div>
+                <span class="status-badge badge-success">Success</span>
+            </div>
+            <div class="card-body">
+                <p class="card-title"><strong>Title:</strong> FundedHive 1 minute payout OR 47 seconds OR $1000 compensation review - Brave Search</p>
+                <p class="card-url"><strong>URL:</strong> <a href="https://search.brave.com/search?q=FundedHive+1+minute+payout+OR+47+seconds+OR+$1000+compensation+review" target="_blank">https://search.brave.com/search?q=FundedHive+1+minute+payout+OR+47+seconds+OR+$1000+compensation+review</a></p>
+                
+            <div class="card-screenshot" onclick="openModal('screenshots/brave_1792302414.png')">
+                <img src="screenshots/brave_1792302414.png" alt="Brave Screenshot">
+                <div class="screenshot-overlay">
+                    <span>🔍 View Fullscreen</span>
+                </div>
+            </div>
+            
+                <div class="card-footer">
+                    <span class="timestamp">🕒 2026-10-18 05:46:54</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="engine-card">
+            <div class="card-header">
+                <div class="engine-name">DuckDuckGo</div>
+                <span class="status-badge badge-success">Success</span>
+            </div>
+            <div class="card-body">
+                <p class="card-title"><strong>Title:</strong> FundedHive 1 minute payout OR 47 seconds OR $1000 compensation review at DuckDuckGo</p>
+                <p class="card-url"><strong>URL:</strong> <a href="https://duckduckgo.com/?q=FundedHive+1+minute+payout+OR+47+seconds+OR+%241000+compensation+review&ia=web" target="_blank">https://duckduckgo.com/?q=FundedHive+1+minute+payout+OR+47+seconds+OR+%241000+compensation+review&ia=web</a></p>
+                
+            <div class="card-screenshot" onclick="openModal('screenshots/duckduckgo_1792302414.png')">
+                <img src="screenshots/duckduckgo_1792302414.png" alt="DuckDuckGo Screenshot">
+                <div class="screenshot-overlay">
+                    <span>🔍 View Fullscreen</span>
+                </div>
+            </div>
+            
+                <div class="card-footer">
+                    <span class="timestamp">🕒 2026-10-18 05:46:54</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="engine-card">
+            <div class="card-header">
+                <div class="engine-name">Yahoo</div>
+                <span class="status-badge badge-success">Success</span>
+            </div>
+            <div class="card-body">
+                <p class="card-title"><strong>Title:</strong> FundedHive 1 minute payout OR 47 seconds OR $1000 compensation review - Yahoo Search Results</p>
+                <p class="card-url"><strong>URL:</strong> <a href="https://search.yahoo.com/search?p=FundedHive+1+minute+payout+OR+47+seconds+OR+$1000+compensation+review" target="_blank">https://search.yahoo.com/search?p=FundedHive+1+minute+payout+OR+47+seconds+OR+$1000+compensation+review</a></p>
+                
+            <div class="card-screenshot" onclick="openModal('screenshots/yahoo_1792302415.png')">
+                <img src="screenshots/yahoo_1792302415.png" alt="Yahoo Screenshot">
+                <div class="screenshot-overlay">
+                    <span>🔍 View Fullscreen</span>
+                </div>
+            </div>
+            
+                <div class="card-footer">
+                    <span class="timestamp">🕒 2026-10-18 05:46:55</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="engine-card">
+            <div class="card-header">
+                <div class="engine-name">Yandex</div>
+                <span class="status-badge badge-success">Success</span>
+            </div>
+            <div class="card-body">
+                <p class="card-title"><strong>Title:</strong> Are you not a robot?</p>
+                <p class="card-url"><strong>URL:</strong> <a href="https://yandex.com/showcaptcha?cc=1&form-fb-hint=2.1&mt=F580865BFD38EDE22E1832AF609573D9C92F158EBA65E5447F3297E1BF9713ED32A66FAB03BEADA22EAD4A9D30523F24B5E374D9845348C497FEC7D9CB00C0D2BE169519D7CFB1E69E0464D870D5F7F1ACFB42E734E334C372C4396B7136D87329E488F6E2C9F66C4AF9744C1F89EEE87D4B29914DF96591E98052590816E029BF762C8898B5249B51&retpath=aHR0cHM6Ly95YW5kZXguY29tL3NlYXJjaD90ZXh0PUZ1bmRlZEhpdmUrMSttaW51dGUrcGF5b3V0K09SKzQ3K3NlY29uZHMrT1IrJDEwMDArY29tcGVuc2F0aW9uK3Jldmlldw%2C%2C_bb044f93f3f0545e35273b7631acb622&t=2%252F1792302407%252F397b46f438b8ec5ede61318425529556&u=9598914054036406860&s=d562abc69f0b8c8efedb91cd5d678cc0" target="_blank">https://yandex.com/showcaptcha?cc=1&form-fb-hint=2.1&mt=F580865BFD38EDE22E1832AF609573D9C92F158EBA65E5447F3297E1BF9713ED32A66FAB03BEADA22EAD4A9D30523F24B5E374D9845348C497FEC7D9CB00C0D2BE169519D7CFB1E69E0464D870D5F7F1ACFB42E734E334C372C4396B7136D87329E488F6E2C9F66C4AF9744C1F89EEE87D4B29914DF96591E98052590816E029BF762C8898B5249B51&retpath=aHR0cHM6Ly95YW5kZXguY29tL3NlYXJjaD90ZXh0PUZ1bmRlZEhpdmUrMSttaW51dGUrcGF5b3V0K09SKzQ3K3NlY29uZHMrT1IrJDEwMDArY29tcGVuc2F0aW9uK3Jldmlldw%2C%2C_bb044f93f3f0545e35273b7631acb622&t=2%252F1792302407%252F397b46f438b8ec5ede61318425529556&u=9598914054036406860&s=d562abc69f0b8c8efedb91cd5d678cc0</a></p>
+                
+            <div class="card-screenshot" onclick="openModal('screenshots/yandex_1792302416.png')">
+                <img src="screenshots/yandex_1792302416.png" alt="Yandex Screenshot">
+                <div class="screenshot-overlay">
+                    <span>🔍 View Fullscreen</span>
+                </div>
+            </div>
+            
+                <div class="card-footer">
+                    <span class="timestamp">🕒 2026-10-18 05:46:56</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="engine-card">
+            <div class="card-header">
+                <div class="engine-name">Google</div>
+                <span class="status-badge badge-success">Success</span>
+            </div>
+            <div class="card-body">
+                <p class="card-title"><strong>Title:</strong> FundedHive 1 minute payout OR 47 seconds OR $1000 compensation review - Google Search</p>
+                <p class="card-url"><strong>URL:</strong> <a href="https://www.google.com/search?q=FundedHive+1+minute+payout+OR+47+seconds+OR+$1000+compensation+review&sei=Rl3UasG9M7im0PEPuLLa2Q8" target="_blank">https://www.google.com/search?q=FundedHive+1+minute+payout+OR+47+seconds+OR+$1000+compensation+review&sei=Rl3UasG9M7im0PEPuLLa2Q8</a></p>
+                
+            <div class="card-screenshot" onclick="openModal('screenshots/google_1792302417.png')">
+                <img src="screenshots/google_1792302417.png" alt="Google Screenshot">
+                <div class="screenshot-overlay">
+                    <span>🔍 View Fullscreen</span>
+                </div>
+            </div>
+            
+                <div class="card-footer">
+                    <span class="timestamp">🕒 2026-10-18 05:46:57</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="engine-card">
+            <div class="card-header">
+                <div class="engine-name">Ecosia</div>
+                <span class="status-badge badge-success">Success</span>
+            </div>
+            <div class="card-body">
+                <p class="card-title"><strong>Title:</strong> Just a moment...</p>
+                <p class="card-url"><strong>URL:</strong> <a href="https://www.ecosia.org/search?q=FundedHive+1+minute+payout+OR+47+seconds+OR+$1000+compensation+review" target="_blank">https://www.ecosia.org/search?q=FundedHive+1+minute+payout+OR+47+seconds+OR+$1000+compensation+review</a></p>
+                
+            <div class="card-screenshot" onclick="openModal('screenshots/ecosia_1792302419.png')">
+                <img src="screenshots/ecosia_1792302419.png" alt="Ecosia Screenshot">
+                <div class="screenshot-overlay">
+                    <span>🔍 View Fullscreen</span>
+                </div>
+            </div>
+            
+                <div class="card-footer">
+                    <span class="timestamp">🕒 2026-10-18 05:46:59</span>
+                </div>
+            </div>
+        </div>
+        
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal -->
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="modal-close">&times;</span>
+        <img class="modal-content" id="modalImg">
+    </div>
+
+    <script>
+        function openModal(imgSrc) {
+            document.getElementById('modalImg').src = imgSrc;
+            document.getElementById('imageModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+        
+        // Close on ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
