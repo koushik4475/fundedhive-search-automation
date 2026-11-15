@@ -1,4 +1,7 @@
-# FundedHive Search Automation [![Views](https://komarev.com/ghpvc/?username=Project121-ui&repo=fundedhive-search-automation&color=blue&style=flat-square)](https://github.com/Project121-ui/fundedhive-search-automation)
+# FundedHive Search Automation | Multi-Search-Engine Indexation Checker & Report Generator
+
+FundedHive Search Automation is a Python research utility for checking whether specified queries or pages appear across multiple search engines. It runs parallel searches, captures relevant X/Twitter post context when configured, and produces HTML and CSV reports with result links and screenshots. It is intended for transparent search-indexation checks and repeatable research—not for manipulating rankings or generating artificial engagement.
+
 
 Automates parallel searches across multiple search engines for "FundedHive 1-minute payout" and correlated indexation verification, with dedicated X/Twitter post parsing.
 
